@@ -1,54 +1,147 @@
-import type {MatchList, Profile, Scholarship, ScholarshipList} from './types';
-
-const API_URL = import.meta.env.VITE_API_URL || '/api';
-
+import type {
+  MatchList,
+  Profile,
+  Scholarship,
+  ScholarshipList,
+} from "./types";
+const API_URL = import.meta.env.VITE_API_URL || "/api";
+const SCHOLARSHIPS_URL = `${API_URL}/scholarships`;
+const PROFILE_URL = `${API_URL}/profile`;
+const MATCHES_URL = `${API_URL}/matches`;
+const FAVORITES_URL = `${API_URL}/favorites`;
 export class ApiError extends Error {
-  constructor(public status: number, message: string) { super(message); }
+  status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+  }
 }
-export async function api<T>(path: string, options: RequestInit = {}): Promise<T> {
-  let response: Response;
+async function readErrorMessage(
+  response: Response,
+  fallback: string,
+): Promise<string> {
   try {
-    response = await fetch(API_URL + path, {
-      ...options, headers: { 'Content-Type': 'application/json', ...options.headers },
-    });
-  } catch (error) {
-    if (error instanceof Error && error.name === 'AbortError') throw error;
-    throw new Error('We couldn’t connect. Check your connection and make sure the server is running, then try again.');
+    const data = await response.json();
+    if (Array.isArray(data.message)) return data.message.join(" ");
+    if (typeof data.message === "string") return data.message;
+  } catch {
+   
   }
-  const body = await response.json().catch(() => null);
-  if (!response.ok) {
-    const message = Array.isArray(body?.message) ? body.message.join(' ') : body?.message;
-    throw new ApiError(response.status, message || 'Something went wrong. Please try again.');
-  }
-  if (body === null) throw new Error('The server returned an unexpected response. Please try again.');
-  return body as T;
+  return fallback;
 }
-
-// Named API functions, following the supplied classroom example.
-export function fetchScholarships(query = '', signal?: AbortSignal) {
-  return api<ScholarshipList>('/scholarships' + (query ? '?' + query : ''), {signal});
+function handleNetworkError(error: unknown): never {
+  if (error instanceof Error && error.name === "AbortError") throw error;
+  throw new Error(
+    "We couldn’t connect. Check your connection and make sure the server is running, then try again.",
+  );
 }
-
-export function fetchScholarshipById(id: string, signal?: AbortSignal) {
-  return api<Scholarship>('/scholarships/' + encodeURIComponent(id), {signal});
+export async function fetchScholarships(
+  query = "",
+  signal?: AbortSignal,
+): Promise<ScholarshipList> {
+  const response = await fetch(
+    SCHOLARSHIPS_URL + (query ? `?${query}` : ""),
+    {
+      signal,
+    },
+  ).catch(handleNetworkError);
+  if (!response.ok)
+    throw new ApiError(
+      response.status,
+      await readErrorMessage(response, "Could not load scholarships."),
+    );
+  return (await response.json()) as ScholarshipList;
 }
-
-export function fetchProfile(signal?: AbortSignal) {
-  return api<{profile: Profile | null}>('/profile', {signal});
+export async function fetchScholarshipById(
+  id: string,
+  signal?: AbortSignal,
+): Promise<Scholarship> {
+  const response = await fetch(
+       `${SCHOLARSHIPS_URL}/${encodeURIComponent(id)}`,
+    { signal },
+  ).catch(handleNetworkError);
+  if (!response.ok)
+    throw new ApiError(
+      response.status,
+      await readErrorMessage(response, "Could not load this scholarship."),
+    );
+  return (await response.json()) as Scholarship;
 }
-
-export function fetchFavorites(signal?: AbortSignal) {
-  return api<ScholarshipList>('/favorites', {signal});
+export async function fetchProfile(
+  signal?: AbortSignal,
+): Promise<{ profile: Profile | null }> {
+  const response = await fetch(PROFILE_URL, { signal }).catch(
+    handleNetworkError,
+  );
+  if (!response.ok)
+    throw new ApiError(
+      response.status,
+      await readErrorMessage(response, "Could not load your profile."),
+    );
+  return (await response.json()) as { profile: Profile | null };
 }
-
-export function fetchMatches(query = '', signal?: AbortSignal) {
-  return api<MatchList>('/matches' + (query ? '?' + query : ''), {signal});
+export async function fetchFavorites(
+  signal?: AbortSignal,
+): Promise<ScholarshipList> {
+  const response = await fetch(FAVORITES_URL, { signal }).catch(
+    handleNetworkError,
+  );
+   if (!response.ok)
+    throw new ApiError(
+      response.status,
+      await readErrorMessage(response, "Could not load favorites."),
+    );
+  return (await response.json()) as ScholarshipList;
 }
-
-export function saveStudentProfile(profile: Profile, exists: boolean) {
-  return api<Profile>('/profile', {method: exists ? 'PATCH' : 'POST', body: JSON.stringify(profile)});
+export async function fetchMatches(
+  query = "",
+  signal?: AbortSignal,
+): Promise<MatchList> {
+  const response = await fetch(MATCHES_URL + (query ? `?${query}` : ""), {
+    signal,
+  }).catch(handleNetworkError);
+  if (!response.ok)
+    throw new ApiError(
+      response.status,
+      await readErrorMessage(response, "Could not load matches."),
+    );
+  return (await response.json()) as MatchList;
 }
-
-export function setScholarshipSaved(scholarship: Scholarship) {
-  return api<{message: string}>('/favorites/' + scholarship.id, {method: scholarship.isFavorite ? 'DELETE' : 'POST'});
+export async function saveStudentProfile(
+  profile: Profile,
+  exists: boolean,
+): Promise<Profile> {
+  const response = await fetch(PROFILE_URL, {
+    method: exists ? "PATCH" : "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(profile),
+      }).catch(handleNetworkError);
+  if (!response.ok)
+    throw new ApiError(
+      response.status,
+      await readErrorMessage(response, "Could not save your profile."),
+    );
+  return (await response.json()) as Profile;
+}
+export async function setScholarshipSaved(
+  scholarship: Scholarship,
+): Promise<{
+  scholarshipId: number;
+  isFavorite: boolean;
+  message: string;
+}> {
+  const response = await fetch(`${FAVORITES_URL}/${scholarship.id}`, {
+    method: scholarship.isFavorite ? "DELETE" : "POST",
+  }).catch(handleNetworkError);
+  if (!response.ok)
+    throw new ApiError(
+      response.status,
+      await readErrorMessage(response, "Could not update favorites."),
+    );
+  return (await response.json()) as {
+    scholarshipId: number;
+    isFavorite: boolean;
+    message: string;
+  };
 }

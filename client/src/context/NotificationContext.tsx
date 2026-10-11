@@ -30,8 +30,7 @@ function NotificationProvider({ children }: { children: ReactNode }) {
   });
   const [toast, setToast] = useState<ToastMessage | null>(null);
   function notify(text: string, mood: PathyMood) {
-    setMessage({ text, mood });
-  }
+    setMessage({ text, mood }); }
   function clear() {
     setMessage(null);
   }
