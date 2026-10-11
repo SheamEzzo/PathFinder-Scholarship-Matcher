@@ -1,0 +1,24 @@
+import Icon from '../components/Icon';
+import {SaveButton} from '../components/ScholarshipCard';
+import {dateLabel, educationLabels, fundingLabels, money, type Scholarship} from '../types';
+
+export default function DetailsPage({scholarship: s, onSave, busy}: {scholarship: Scholarship; onSave: (s: Scholarship) => void; busy: boolean}) {
+  return <>
+    <a href="#/scholarships" className="back-link"><span>←</span> Back to scholarships</a>
+    <section className="detail-header"><div><div className="card-badges"><span className="badge neutral">{s.country}</span><span className={`badge funding-${s.fundingLevel}`}>{fundingLabels[s.fundingLevel]}</span><span className={`badge ${s.deadlineStatus === 'closed' ? 'closed' : 'open'}`}>{s.deadlineStatus === 'closed' ? 'Applications closed' : 'Applications open'}</span></div><h1>{s.title}</h1><p><Icon name="building"/>{s.institution}</p></div><div className="detail-save"><SaveButton scholarship={s} onSave={onSave} busy={busy}/><span>{s.isFavorite ? 'Saved to favorites' : 'Save for later'}</span></div></section>
+    {s.deadlineStatus === 'closed' && <div className="alert warning">This opportunity closed on {dateLabel(s.applicationDeadline)}. You can still view or save it, but it won’t appear in your available matches.</div>}
+    <div className="details-layout"><div>
+      <section className="panel"><p className="eyebrow">THE OPPORTUNITY</p><h2>A closer look</h2><p className="description">{s.description}</p><div className="detail-facts">
+        <div><Icon name="graduate"/><span>Degree offered<strong>{educationLabels[s.studyLevel]}</strong></span></div>
+        <div><Icon name="calendar"/><span>Application deadline<strong>{dateLabel(s.applicationDeadline)} <small>(UTC)</small></strong></span></div>
+        <div><Icon name="wallet"/><span>Remaining annual cost<strong>{money(s.estimatedAnnualCost)} / year</strong></span></div>
+        <div><Icon name="globe"/><span>Destination<strong>{s.country}</strong></span></div>
+      </div></section>
+      <section className="panel"><h2>Who can apply?</h2><dl className="requirements-list"><div><dt>Minimum completed qualification</dt><dd>{educationLabels[s.requiredEducationLevel]} or higher</dd></div><div><dt>Eligible fields of study</dt><dd>{s.eligibleFieldsOfStudy.join(', ')}</dd></div><div><dt>Required languages</dt><dd>{s.languageRequirements.join(' + ')} (all required)</dd></div><div><dt>Age requirement</dt><dd>{s.ageRestriction ? `${s.ageRestriction.min ? `At least ${s.ageRestriction.min}` : 'No minimum'}${s.ageRestriction.max ? ` · Up to ${s.ageRestriction.max} years` : ''}` : 'No age restriction'}</dd></div><div><dt>Funding</dt><dd>{fundingLabels[s.fundingLevel]}</dd></div></dl></section>
+      {s.match && <section className="panel explanation"><h2>Let’s break it down</h2><p>These are the same rules used to calculate your match and rank.</p><h3>Eligibility requirements</h3><ul>{s.match.requirements.map(c => <li key={c.key} className={c.met ? 'met' : 'unmet'}><Icon name={c.met ? 'check' : 'close'} size={18}/><span>{c.message}</span></li>)}</ul><h3>Your preferences</h3><ul>{s.match.preferences.map(c => <li key={c.key} className={c.met ? 'met' : 'preference-unmet'}><Icon name={c.met ? 'check' : 'close'} size={18}/><span>{c.message}</span></li>)}</ul></section>}
+    </div><aside><section className="match-summary panel">
+      <span className="round-symbol"><Icon name="spark" size={26}/></span>
+      {s.match ? <><p className="eyebrow">YOUR PERSONAL MATCH</p><div className={`score ${s.match.eligible ? '' : 'low'}`}>{s.match.matchPercentage}<span>%</span></div><span className={`badge ${s.match.eligible ? 'open' : 'closed'}`}>{s.match.eligibilityStatus}</span><p>{s.match.eligible ? s.match.unmetPreferences.length ? 'You meet the eligibility requirements. A few preferences don’t quite line up.' : 'All eligibility requirements and preferences line up with your profile.' : 'Some required conditions are missing. Review the breakdown to see what needs to change.'}</p><div className="score-lines"><span>Eligibility points<strong>{s.match.scoreBreakdown.eligibilityPoints}</strong></span><span>Preference points<strong>{s.match.scoreBreakdown.preferencePoints}</strong></span>{s.match.scoreBreakdown.ineligibleCap !== null && <span>Ineligible score capped at<strong>49%</strong></span>}</div><a className="button secondary" href="#/profile">Edit my profile <Icon name="arrow" size={17}/></a></> : <><h2>Could this be your next chapter?</h2><p>Complete your profile to see your match percentage and an explanation of every requirement.</p><a className="button primary" href="#/profile">Find my fit <Icon name="arrow" size={17}/></a></>}
+    </section><p className="detail-note">Scholarships are illustrative teaching examples. This app does not accept applications.</p></aside></div>
+  </>;
+}

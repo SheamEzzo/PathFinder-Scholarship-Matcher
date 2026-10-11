@@ -1,10 +1,16 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import './index.css'
+import './styles.css';
+import './pathy.css';
 import App from './App.tsx'
+import {NotificationProvider} from './context/NotificationContext';
+
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <NotificationProvider>
+      <App />
+
+    </NotificationProvider>
   </StrictMode>,
 )
