@@ -1,6 +1,6 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "./store";
-interface SavedScholarshipsState {
+export interface SavedScholarshipsState {
   savedIds: number[];
 }
 const initialState: SavedScholarshipsState = { savedIds: [] };
