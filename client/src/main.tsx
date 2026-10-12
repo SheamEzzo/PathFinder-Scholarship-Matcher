@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { HashRouter } from "react-router-dom";
+import { BrowserRouter } from "react-router-dom";
 import { Provider } from "react-redux";
 import { NotificationProvider } from "./context/NotificationContext";
 import store from "./store/store";
@@ -11,13 +11,13 @@ const rootElement = document.getElementById("root");
 if (rootElement) {
   createRoot(rootElement).render(
     <StrictMode>
-      <HashRouter>
+      <BrowserRouter>
         <Provider store={store}>
           <NotificationProvider>
             <App />
           </NotificationProvider>
         </Provider>
-      </HashRouter>
+      </BrowserRouter>
     </StrictMode>,
   );
 }
