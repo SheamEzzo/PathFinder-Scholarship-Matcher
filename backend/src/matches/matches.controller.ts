@@ -1,26 +1,14 @@
 import { Controller, Get, Query } from '@nestjs/common';
-import { MatchesService, MatchFilters, StudentProfile, Scholarship } from './matches.service.js';
+import { ScholarshipViewsService } from '../scholarships/scholarship-views.service.js';
+import { FilterScholarshipsDto } from '../scholarships/dto/filter-scholarships.dto.js';
 
-/**
- * Thin HTTP layer. Connect getMatches() to the project's actual profile and
- * scholarship-view data source when those services are available.
- */
 @Controller('matches')
 export class MatchesController {
-  constructor(private readonly matchesService: MatchesService) {}
+  constructor(private readonly viewsService: ScholarshipViewsService) {}
 
+  /** Ranked results for the current profile (400 if there is no profile yet). */
   @Get()
-  getMatches(@Query() _query: Record<string, string>) {
-    // This scaffold deliberately does not invent a profile or scholarship seed.
-    // The actual project integration should obtain both from existing services.
-    return {
-      items: [],
-      total: 0,
-      totalOpen: 0,
-      eligibleCount: 0,
-      filteredEligibleCount: 0,
-      message:
-        'Connect MatchesController to the existing profile and scholarship view services.',
-    };
+  getMatches(@Query() filters: FilterScholarshipsDto) {
+    return this.viewsService.matches(filters);
   }
 }

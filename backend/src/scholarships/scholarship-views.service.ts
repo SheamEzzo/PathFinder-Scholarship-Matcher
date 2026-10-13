@@ -15,6 +15,7 @@ export class ScholarshipViewsService {
     private readonly favoritesService: FavoritesService,
   ) {}
 
+  /** Single place that decorates a scholarship: deadline, favorite and match. */
   private present(
     scholarship: Scholarship,
     profile: StudentProfile | null,
@@ -28,7 +29,7 @@ export class ScholarshipViewsService {
       ),
       isFavorite: this.favoritesService.has(scholarship.id),
       match: profile
-        ? this.matchesService.calculateForScholarship(profile, scholarship)
+        ? this.matchesService.calculate(profile, scholarship)
         : null,
     };
   }
@@ -75,21 +76,13 @@ export class ScholarshipViewsService {
   matches(filters: FilterScholarshipsDto) {
     const profile = this.profileService.requireProfile();
     const today = new Date().toISOString().slice(0, 10);
-    // Compute and rank BEFORE filtering; filters only hide existing results.
+    // Rank ALL open scholarships first; filters only hide results afterwards,
+    // so a scholarship keeps the same percentage, explanation and rank.
     const ranked = this.scholarshipsService
       .findAll()
-      .filter(
-        (scholarship) =>
-          this.scholarshipsService.deadlineStatus(scholarship, today) ===
-          'open',
-      )
-      .map((scholarship) => ({
-        ...this.present(scholarship, profile, today),
-        match: this.matchesService.calculateForScholarship(
-          profile,
-          scholarship,
-        ),
-      }))
+      .map((scholarship) => this.present(scholarship, profile, today))
+      .filter((scholarship) => scholarship.deadlineStatus === 'open')
+      .map((scholarship) => ({ ...scholarship, match: scholarship.match! }))
       .sort(
         (a, b) =>
           Number(b.match.eligible) - Number(a.match.eligible) ||

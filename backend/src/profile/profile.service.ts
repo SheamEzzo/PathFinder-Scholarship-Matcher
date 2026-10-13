@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -27,10 +26,8 @@ export class ProfileService {
   }
 
   create(dto: CreateProfileDto): StudentProfile {
-    if (this.profile)
-      throw new ConflictException(
-        'A profile already exists. Use PATCH /profile to edit it.',
-      );
+    // Saving again (e.g. an outdated page or a repeated submit) replaces the
+    // single profile instead of failing, so there is never more than one.
     this.profile = { ...dto };
     return this.profile;
   }
