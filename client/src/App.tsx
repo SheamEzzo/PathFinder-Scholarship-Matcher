@@ -7,7 +7,7 @@ import PageNavigation from "./components/PageNavigation";
 import { useNotification } from "./context/NotificationContext";
 import ScholarshipsPage from "./pages/ScholarshipsPage";
 import ProfilePage from "./pages/ProfilePage";
-import MatchesPage from "./pages/MatchesPage";
+import MatchesPage from "./components/MatchesPage";
 import FavoritesPage from "./pages/FavoritesPage";
 import DetailsPage from "./pages/DetailsPage";
 import NotFoundPage from "./pages/NotFoundPage";
