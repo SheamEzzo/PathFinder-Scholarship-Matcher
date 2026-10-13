@@ -49,19 +49,24 @@ function ProfileForm({
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
     setError("");
-    if (!languages.length || !countries.length || !areas.length) {
-      setError(
-        "Choose at least one language, preferred country and preferred study area.",
-      );
+    const missing: string[] = [];
+    if (age === "") missing.push("age");
+    else if (!Number.isInteger(Number(age)) || Number(age) < 16 || Number(age) > 100)
+      missing.push("a valid age (a whole number between 16 and 100)");
+    if (!field) missing.push("current field of study");
+    if (!education) missing.push("current education level");
+    if (!languages.length) missing.push("at least one language");
+    if (budget === "") missing.push("budget");
+    else if (!Number.isFinite(Number(budget)) || Number(budget) < 0)
+      missing.push("a valid budget (0 or more)");
+    if (!countries.length) missing.push("at least one preferred country");
+    if (!areas.length) missing.push("at least one preferred study area");
+    if (missing.length) {
+      setError("Please fix the following: " + missing.join(", ") + ".");
       notify(
-        "A few choices are missing. Pick a language, a country and a study area, then try again.",
+        "A few things need your attention. Check the message below and try again.",
         "encourage",
       );
-      return;
-    }
-    if (!education || !field || age === "" || budget === "") {
-      setError("Please complete all required fields.");
-      notify("Let’s fill in the required fields together.", "encourage");
       return;
     }
     setBusy(true);
