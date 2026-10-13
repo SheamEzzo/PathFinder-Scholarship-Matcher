@@ -7,6 +7,8 @@ async function bootstrap() {
     instrument: ObserveInstrument,
   });
 
+  app.setGlobalPrefix('api');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

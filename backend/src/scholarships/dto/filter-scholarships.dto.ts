@@ -1,6 +1,6 @@
 import { IsEnum, IsNotEmpty, IsString, ValidateIf } from 'class-validator';
-import { EducationLevel, FundingLevel } from '../../common/types';
-import { Trim } from '../../common/transforms';
+import { EducationLevel, FundingLevel } from '../../common/types.js';
+import { Trim } from '../../common/transforms.js';
 
 export class FilterScholarshipsDto {
   @ValidateIf((_, value) => value !== undefined)

@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { ScholarshipsService } from '../scholarships/scholarships.service';
+import { ScholarshipsService } from '../scholarships/scholarships.service.js';
 
 @Injectable()
 export class FavoritesService {

@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 
 import { FavoritesService } from './favorites.service.js';
-import { ScholarshipViewsService } from '../scholarships/scholarship-views.service';
+import { ScholarshipViewsService } from '../scholarships/scholarship-views.service.js';
 
 @Controller('favorites')
 export class FavoritesController {

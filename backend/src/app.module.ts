@@ -5,6 +5,7 @@ import { AppService } from './app.service.js';
 import { MatchesModule } from './matches/matches.module.js';
 import { ProfileModule } from './profile/profile.module.js';
 import { FavoritesModule } from './favorites/favorites.module.js';
+import { ScholarshipsModule } from './scholarships/scholarships.module.js';
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
@@ -19,6 +20,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
     MatchesModule,
     ProfileModule,
     FavoritesModule,
+    ScholarshipsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

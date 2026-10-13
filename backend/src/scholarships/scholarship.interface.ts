@@ -1,4 +1,4 @@
-import { EducationLevel, FundingLevel } from '../common/types';
+import { EducationLevel, FundingLevel } from '../common/types.js';
 
 export interface Scholarship {
   id: number;

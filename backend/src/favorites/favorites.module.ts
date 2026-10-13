@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { FavoritesController } from './favorites.controller.js';
-import { ScholarshipDataModule } from '../scholarships/scholarship-data.module';
+import { ScholarshipDataModule } from '../scholarships/scholarship-data.module.js';
 
 @Module({
   imports: [ScholarshipDataModule],
